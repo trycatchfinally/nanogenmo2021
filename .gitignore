@@ -3,3 +3,10 @@
 /.mypy_cache/
 /.pytest_cache/
 
+/.cache/
+/.debug/
+/.debug-class/
+/.debug-lines/
+/.debug-parts/
+/json-analyze/
+/easy/

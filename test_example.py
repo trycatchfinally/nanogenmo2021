@@ -1,6 +1,9 @@
+import json
 import os.path
+import zipfile
 
 import pytest
+from azure.cognitiveservices.vision.computervision.models import ImageAnalysis
 
 import cloud_vision
 import generate_frames
@@ -35,6 +38,23 @@ def test_example_different_windows():
 
   assert word_count_for_window == {1: 591, 2: 519, 4: 467, 8: 421, 16: 393, 32: 368}
 
+
+def test_json_zip_loading():
+  with zipfile.ZipFile('json-analyze.zip', 'r') as zf:
+    d = json.load(zf.open('json-analyze/Survival1951/Survival1951-0002.json'))
+    assert d
+
+  assert list(d.keys()) == ['categories', 'adult', 'color', 'imageType', 'tags', 'description', 'faces', 'objects', 'brands', 'requestId',
+                            'metadata', 'modelVersion']
+  assert d['requestId'] == '77b89155-d795-4759-b103-eb35dbedfb28'
+
+  analysis_obj = ImageAnalysis.deserialize(d)
+  # verify that the requestId in the dict was mapped to request_id property
+  assert analysis_obj.request_id == d['requestId']
+
+  round_trip_dict = analysis_obj.serialize(keep_readonly=True)
+  # and that we lost nothing in round-tripping the object
+  assert d == round_trip_dict
 
 if __name__ == '__main__':
   pytest.main()
